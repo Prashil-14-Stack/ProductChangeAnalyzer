@@ -1,0 +1,578 @@
+/* ==========================================================
+   PRODUCT CHANGE ANALYZER
+   ENTERPRISE THEME
+   Version 2.0
+========================================================== */
+
+
+/* ==========================================================
+   GOOGLE FONT
+========================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+
+/* ==========================================================
+   ROOT VARIABLES
+========================================================== */
+
+:root{
+
+    --primary:#005BAC;
+    --primary-dark:#003B73;
+    --primary-light:#EAF4FF;
+
+    --background:#F3F6FB;
+
+    --card:#FFFFFF;
+
+    --border:#D8E2EC;
+
+    --text:#e7e9ed;
+
+    --text-light:#6B7280;
+
+    --success:#22C55E;
+
+    --warning:#F59E0B;
+
+    --danger:#EF4444;
+
+    --radius:18px;
+
+}
+
+
+/* ==========================================================
+   APPLICATION
+========================================================== */
+
+html,
+body,
+.stApp{
+
+    background:var(--background);
+
+    font-family:'Inter',sans-serif;
+
+}
+
+
+/* ==========================================================
+   MAIN CONTENT
+========================================================== */
+
+.main .block-container{
+
+    max-width:1450px;
+
+    padding-top:1.5rem;
+
+    padding-left:2.5rem;
+
+    padding-right:2.5rem;
+
+    padding-bottom:2rem;
+
+}
+
+
+/* ==========================================================
+   SIDEBAR
+========================================================== */
+
+/*section[data-testid="stSidebar"]{
+
+    background:#0F3B63;
+
+    border-right:none;
+
+    min-width:285px;
+    max-width:285px;
+
+}
+
+section[data-testid="stSidebar"] *{
+
+    color:white;
+
+}*/
+
+
+/* ==========================================================
+   SIDEBAR RADIO
+========================================================== */
+
+.stRadio > div{
+
+    gap:10px;
+
+}
+
+.stRadio label{
+
+    background:transparent;
+
+    border-radius:12px;
+
+    padding:12px 15px;
+
+    transition:.3s;
+
+}
+
+.stRadio label:hover{
+
+    background:#1A4D7C;
+
+}
+
+
+/* ==========================================================
+   HEADER
+========================================================== */
+
+.enterprise-header{
+
+    background:white;
+
+    border-radius:20px;
+
+    padding:25px;
+
+    border:1px solid var(--border);
+
+    box-shadow:
+        0px 8px 20px rgba(0,0,0,.06);
+
+}
+
+
+/* ==========================================================
+   TYPOGRAPHY
+========================================================== */
+
+h1{
+
+    font-size:2.2rem;
+
+    font-weight:700;
+
+    color:#1F2937;
+
+    margin-bottom:.25rem;
+
+}
+
+h2{
+
+    font-size:1.7rem;
+
+    font-weight:650;
+
+    color:#1F2937;
+
+    margin-bottom:.4rem;
+
+}
+
+h3{
+
+    font-size:1.25rem;
+
+    font-weight:600;
+
+    color:#374151;
+
+    margin-bottom:.4rem;
+
+}
+
+p{
+
+    font-size:.96rem;
+
+    color:#6B7280;
+
+    line-height:1.6;
+
+}
+
+/* ==========================================================
+   KPI METRIC CARDS
+========================================================== */
+
+[data-testid="metric-container"]{
+
+    background:white;
+
+    border:1px solid #D8E2EC;
+
+    border-radius:18px;
+
+    padding:20px;
+
+    box-shadow:0 6px 16px rgba(0,0,0,.06);
+
+    transition:all .25s ease;
+
+}
+
+[data-testid="metric-container"]:hover{
+
+    transform:translateY(-4px);
+
+    box-shadow:0 12px 24px rgba(0,0,0,.10);
+
+}
+
+[data-testid="metric-container"] label{
+
+    font-size:14px;
+
+    font-weight:600;
+
+    color:#6B7280;
+
+}
+
+[data-testid="metric-container"] [data-testid="stMetricValue"]{
+
+    font-size:34px;
+
+    font-weight:700;
+
+    color:#005BAC;
+
+}
+
+[data-testid="metric-container"] [data-testid="stMetricDelta"]{
+
+    font-size:13px;
+
+    font-weight:600;
+
+}
+
+
+/* ==========================================================
+   GENERAL CARD
+========================================================== */
+
+.card{
+
+    background:white;
+
+    border-radius:20px;
+
+    border:1px solid var(--border);
+
+    padding:25px;
+
+    margin-bottom:20px;
+
+    box-shadow:
+
+        0px 5px 15px rgba(0,0,0,.05);
+
+}
+
+
+/* ==========================================================
+   BUTTONS
+========================================================== */
+
+.stButton>button{
+
+    background:#005BAC;
+
+    color:white;
+
+    border:none;
+
+    border-radius:10px;
+
+    padding:.7rem 1rem;
+
+    font-size:15px;
+
+    font-weight:600;
+
+    transition:.2s;
+
+}
+
+.stButton>button:hover{
+
+    background:#004A8F;
+
+    transform:translateY(-2px);
+
+}
+
+
+/* ==========================================================
+   TEXT INPUT
+========================================================== */
+
+.stTextInput input{
+
+    border-radius:10px;
+
+    border:1px solid #D8E2EC;
+
+    padding:10px;
+
+}
+
+
+/* ==========================================================
+   PASSWORD INPUT
+========================================================== */
+
+.stTextInput>div>div>input{
+
+    font-size:15px;
+
+}
+
+
+/* ==========================================================
+   SELECTBOX
+========================================================== */
+
+.stSelectbox{
+
+    border-radius:10px;
+
+}
+
+
+/* ==========================================================
+   FILE UPLOADER
+========================================================== */
+
+[data-testid="stFileUploader"]{
+
+    background:white;
+
+    border-radius:20px;
+
+    border:2px dashed #C7D7EA;
+
+    padding:25px;
+
+}
+
+
+/* ==========================================================
+   METRICS
+========================================================== */
+
+[data-testid="metric-container"]{
+
+    background:white;
+
+    border-radius:18px;
+
+    border:1px solid #D8E2EC;
+
+    padding:18px;
+
+}
+
+
+/* ==========================================================
+   TABLES
+========================================================== */
+
+thead tr{
+
+    background:#005BAC;
+
+}
+
+thead th{
+
+    color:white !important;
+
+    font-size:14px;
+
+}
+
+tbody td{
+
+    font-size:14px;
+
+}
+
+tbody tr{
+
+    height:42px;
+
+}
+
+tbody tr:nth-child(even){
+
+    background:#F8FAFC;
+
+}
+
+
+/* ==========================================================
+   SUCCESS
+========================================================== */
+
+.stSuccess{
+
+    border-radius:12px;
+
+}
+
+
+/* ==========================================================
+   WARNING
+========================================================== */
+
+.stWarning{
+
+    border-radius:12px;
+
+}
+
+
+/* ==========================================================
+   ERROR
+========================================================== */
+
+.stError{
+
+    border-radius:12px;
+
+}
+
+
+/* ==========================================================
+   PROGRESS
+========================================================== */
+
+.stProgress>div>div{
+
+    background:#005BAC;
+
+}
+
+
+/* ==========================================================
+   SCROLLBAR
+========================================================== */
+
+::-webkit-scrollbar{
+
+    width:10px;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:#B9C8D8;
+
+    border-radius:20px;
+
+}
+
+
+/* ==========================================================
+   FOOTER
+========================================================== */
+
+footer{
+
+    visibility:hidden;
+
+}
+
+
+/* ==========================================================
+   STREAMLIT MENU
+========================================================== */
+
+#MainMenu{
+
+    visibility:hidden;
+
+}
+
+
+/* ==========================================================
+   HEADER
+========================================================== */
+
+header{
+
+    visibility:hidden;
+
+}
+
+
+/* ==========================================================
+   HORIZONTAL RULE
+========================================================== */
+
+hr{
+
+    border:none;
+
+    border-top:1px solid #E2E8F0;
+
+}
+
+
+/* ==========================================================
+   ANIMATION
+========================================================== */
+
+*{
+
+    transition:.2s ease;
+
+}
+
+/* Metrics */
+[data-testid="metric-container"]{
+    border:1px solid #D8E2EC;
+    border-radius:14px;
+    background:white;
+    padding:16px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* ==========================================================
+   SECTION SPACING
+========================================================== */
+
+.stMarkdown{
+
+    margin-bottom:.45rem;
+
+}
+
+.stAlert{
+
+    margin-bottom:1rem;
+
+}
+
+.stDataFrame{
+
+    margin-top:1rem;
+
+    margin-bottom:1rem;
+
+}
+
+.element-container{
+
+    margin-bottom:.6rem;
+
+}

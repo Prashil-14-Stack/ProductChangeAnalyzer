@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual Environment
+venv/
+.env
+
+# Streamlit
+.streamlit/
+
+# macOS
+.DS_Store
+
+# Word temp files
+~$*.docx
+~$*.xlsx
+
+# Logs
+*.log
+
+# Build files
+build/
+dist/
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# Python cache
+.pytest_cache/
+
+# Excel temp files
+~*.xlsx

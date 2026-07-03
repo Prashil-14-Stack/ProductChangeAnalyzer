@@ -12,6 +12,9 @@ Old Description:
 New Description:
 {new_text}
 
+Extracted Difference:
+{difference}
+
 Your job is to identify the ACTUAL business change.
 
 IMPORTANT:

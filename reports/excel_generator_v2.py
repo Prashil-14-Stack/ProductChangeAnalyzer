@@ -1,7 +1,4 @@
-from openpyxl import Workbook
-from openpyxl.styles import Font
-from openpyxl.styles import PatternFill
-from openpyxl.styles import Alignment
+import xlsxwriter
 
 
 class ExcelGeneratorV2:
@@ -20,15 +17,49 @@ class ExcelGeneratorV2:
 
     ):
 
-        workbook = Workbook()
+        # =====================================================
+        # Create Workbook
+        # =====================================================
 
-        sheet = workbook.active
+        workbook = xlsxwriter.Workbook(file_name)
 
-        sheet.title = "Parameter Comparison"
+        worksheet = workbook.add_worksheet("Parameter Comparison")
 
-        # -----------------------------
-        # Dynamic Header
-        # -----------------------------
+        # =====================================================
+        # Cell Formats
+        # =====================================================
+
+        header_format = workbook.add_format({
+
+            "bold": True,
+
+            "font_color": "white",
+
+            "bg_color": "#1F4E78",
+
+            "align": "center",
+
+            "valign": "vcenter",
+
+            "text_wrap": True,
+
+            "border": 1
+
+        })
+
+        normal_format = workbook.add_format({
+
+            "text_wrap": True,
+
+            "valign": "top",
+
+            "border": 1
+
+        })
+
+        # =====================================================
+        # Headers
+        # =====================================================
 
         headers = [
 
@@ -58,99 +89,110 @@ class ExcelGeneratorV2:
 
             "V1 Content",
 
-            "V2 Content"
+            "V2 Content",
+
+            "Difference"
 
         ]
 
+        # Write Header Row
 
-        sheet.append(headers)
+        for column, header in enumerate(headers):
 
-        # -----------------------------
-        # Header Styling
-        # -----------------------------
+            worksheet.write(
 
-        blue_fill = PatternFill(
+                0,
 
-            fill_type="solid",
+                column,
 
-            start_color="1F4E78",
+                header,
 
-            end_color="1F4E78"
-
-        )
-
-        white_font = Font(
-
-            bold=True,
-
-            color="FFFFFF"
-
-        )
-
-        for cell in sheet[1]:
-
-            cell.fill = blue_fill
-
-            cell.font = white_font
-
-            cell.alignment = Alignment(
-
-                horizontal="center",
-
-                vertical="center",
-
-                wrap_text=True
+                header_format
 
             )
 
-        # -----------------------------
-        # Data
-        # -----------------------------
+        # =====================================================
+        # Write Data
+        # =====================================================
+
+        row_number = 1
 
         for row in comparison_table:
 
-            sheet.append([
+            values = [
 
-                row["Source Version"],
+                row.get("Source Version"),
 
-                row["Target Version"],
+                row.get("Target Version"),
 
-                row["V1 Parameter"],
+                row.get("V1 Parameter"),
 
-                row["Matched V2 Parameter"],
+                row.get("Matched V2 Parameter"),
 
-                row["Parameter Confidence"],
+                row.get("Parameter Confidence"),
 
-                row["Description Confidence"],
+                row.get("Description Confidence"),
 
-                row["Overall Confidence"],
+                row.get("Overall Confidence"),
 
-                row["Decision"],
+                row.get("Decision"),
 
-                row["Status"],
+                row.get("Status"),
 
-                row["Change Type"],
+                row.get("Change Type"),
 
-                row["Severity"],
+                row.get("Severity"),
 
-                row["Remarks"],
+                row.get("Remarks"),
 
-                row["V1"],
+                row.get("V1"),
 
-                row["V2"]
+                row.get("V2"),
 
-            ])
+                row.get("Difference")
 
-        # -----------------------------
-        # Auto Width
-        # -----------------------------
+            ]
 
-        for column in sheet.columns:
+            for column, value in enumerate(values):
 
-            width = 20
+                worksheet.write(
 
-            letter = column[0].column_letter
+                    row_number,
 
-            sheet.column_dimensions[letter].width = width
+                    column,
 
-        workbook.save(file_name)
+                    value,
+
+                    normal_format
+
+                )
+
+            row_number += 1
+
+        # =====================================================
+        # Column Widths
+        # =====================================================
+
+        worksheet.set_column(0, 0, 15)
+
+        worksheet.set_column(1, 1, 15)
+
+        worksheet.set_column(2, 3, 30)
+
+        worksheet.set_column(4, 6, 18)
+
+        worksheet.set_column(7, 10, 20)
+
+        worksheet.set_column(11, 11, 50)
+
+        worksheet.set_column(12, 13, 80)
+
+        worksheet.set_column(14, 14, 40)
+
+        # =====================================================
+        # Close Workbook
+        # =====================================================
+
+        workbook.close()
+
+        return file_name

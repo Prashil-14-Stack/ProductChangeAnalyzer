@@ -2,7 +2,7 @@
 import os
 import shutil
 from datetime import datetime
-from services.semantic_repository import SemanticRepository
+from services.semantic_repository_v2 import SemanticRepositoryV2
 from utils.file_helper import FileHelper
 from services.embedding_service import EmbeddingService
 from comparators.parameter_comparator_v2 import ParameterComparator

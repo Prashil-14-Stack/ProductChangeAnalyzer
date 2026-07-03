@@ -1,4 +1,5 @@
 from services.llm_service import LLMService
+import re
 
 from config.ai_config import (
     PARAMETER_MATCH_THRESHOLD,
@@ -6,11 +7,30 @@ from config.ai_config import (
 )
 
 
+# ==========================================================
+# Normalize Parameter Name
+# ==========================================================
+
+def normalize_parameter(parameter: str) -> str:
+
+    parameter = (parameter or "").lower()
+
+    parameter = re.sub(r"[\/\-_]", " ", parameter)
+
+    parameter = re.sub(r"\s+", " ", parameter)
+
+    return parameter.strip()
+
+
 class ParameterMatcher:
 
     def __init__(self):
 
         self.llm = LLMService()
+
+    # ======================================================
+    # Match Parameter
+    # ======================================================
 
     def match(
 
@@ -25,14 +45,21 @@ class ParameterMatcher:
     ):
 
         """
-        Uses GPT to determine the best business parameter
-        match from the Top-K semantic candidates returned
-        by E5.
+        Matching Strategy
+
+        Step 1
+            Exact parameter match
+
+        Step 2
+            GPT validation
+
+        Step 3
+            Confidence thresholds
         """
 
-        # -----------------------------------------
-        # No candidates retrieved
-        # -----------------------------------------
+        # --------------------------------------------------
+        # No Candidates
+        # --------------------------------------------------
 
         if not candidates:
 
@@ -54,63 +81,122 @@ class ParameterMatcher:
 
             }
 
-        # -----------------------------------------
-        # Ask GPT to validate the candidates
-        # -----------------------------------------
+        # --------------------------------------------------
+        # STEP 1
+        # Exact Parameter Name Match
+        # --------------------------------------------------
 
-        llm_result = self.llm.validate_parameter_match(
+        normalized_source = normalize_parameter(
 
-            source_parameter=source_parameter,
-
-            source_description=source_description,
-
-            candidates=candidates
+            source_parameter
 
         )
-        print("\n========== GPT RESPONSE ==========")
-        print(llm_result)
-        print("==================================\n")
-        # -----------------------------------------
-        # GPT says there is no business match
-        # -----------------------------------------
 
-        if llm_result["decision"] == "NO_MATCH":
+        for candidate in candidates:
 
-            return {
+            semantic_index = candidate["index"]
 
-                "status": "No Match",
+            normalized_candidate = normalize_parameter(
 
-                "confidence": llm_result.get("confidence", 0),
+                semantic_index.parameter.name
 
-                "confidence_band": "Low",
+            )
 
-                "matched_parameter": None,
+            if normalized_source == normalized_candidate:
 
-                "matched_text": "",
+                print(
 
-                "matched_version": None,
+                    f"✅ Exact Match Found : "
 
-                "matched_filename": None
+                    f"{semantic_index.parameter.name}"
 
-            }
+                )
 
-        # -----------------------------------------
-        # Find GPT-selected candidate
-        # -----------------------------------------
+                return {
+
+                    "status": "Matched",
+
+                    "confidence": 100,
+
+                    "confidence_band": "High",
+
+                    "match_type": "Exact Match",
+
+                    "matched_parameter":
+
+                        semantic_index.parameter,
+
+                    # Temporary (will remove after comparator migration)
+                    "matched_text":
+
+                        semantic_index.parameter.value,
+
+                    "matched_version":
+
+                        semantic_index.version,
+
+                    "matched_filename":
+
+                        semantic_index.filename
+
+                }
+
+        # --------------------------------------------------
+        # STEP 2
+        # GPT Validation
+        # --------------------------------------------------
 
         selected_candidate = None
 
         for candidate in candidates:
 
-            if candidate["parameter"] == llm_result["matched_parameter"]:
+            semantic_index = candidate["index"]
+
+            print(
+
+                f"🤖 Checking Candidate : "
+
+                f"{semantic_index.parameter.name} "
+
+                f"({candidate['similarity']}%)"
+
+            )
+
+            llm_candidate = {
+
+                "parameter":
+
+                    semantic_index.parameter.name,
+
+                "text":
+
+                    semantic_index.parameter.value
+
+            }
+
+            llm_result = self.llm.validate_parameter_match(
+
+                source_parameter=source_parameter,
+
+                source_description=source_description,
+
+                candidates=[llm_candidate]
+
+            )
+
+            print("\n========== GPT RESPONSE ==========")
+            print(llm_result)
+            print("==================================\n")
+
+            if llm_result["decision"] == "MATCH":
 
                 selected_candidate = candidate
 
                 break
 
-        # -----------------------------------------
-        # Safety check
-        # -----------------------------------------
+        # --------------------------------------------------
+        # No Candidate Accepted
+        # --------------------------------------------------
 
         if selected_candidate is None:
 
@@ -132,11 +218,14 @@ class ParameterMatcher:
 
             }
 
-        # -----------------------------------------
-        # Apply E5 similarity thresholds
-        # -----------------------------------------
+        # --------------------------------------------------
+        # STEP 3
+        # Confidence Threshold
+        # --------------------------------------------------
 
         similarity = selected_candidate["similarity"]
+
+        semantic_index = selected_candidate["index"]
 
         if similarity >= PARAMETER_MATCH_THRESHOLD:
 
@@ -156,9 +245,9 @@ class ParameterMatcher:
 
             band = "Low"
 
-        # -----------------------------------------
-        # Return final result
-        # -----------------------------------------
+        # --------------------------------------------------
+        # Return
+        # --------------------------------------------------
 
         return {
 
@@ -168,12 +257,21 @@ class ParameterMatcher:
 
             "confidence_band": band,
 
-            "matched_parameter": selected_candidate["parameter"],
+            "matched_parameter":
 
-            "matched_text": selected_candidate["text"],
+                semantic_index.parameter,
 
-            "matched_version": selected_candidate["version"],
+            # Temporary
+            "matched_text":
 
-            "matched_filename": selected_candidate["filename"]
+                semantic_index.parameter.value,
+
+            "matched_version":
+
+                semantic_index.version,
+
+            "matched_filename":
+
+                semantic_index.filename
 
         }

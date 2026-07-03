@@ -1,4 +1,4 @@
-from openpyxl import Workbook
+import xlsxwriter
 
 class ExcelGenerator:
 
@@ -11,7 +11,7 @@ class ExcelGenerator:
             understanding_results,
             file_name):
 
-        workbook = Workbook()
+        wworkbook = xlsxwriter.Workbook(file_name)
 
         # =====================================
         # SHEET 1

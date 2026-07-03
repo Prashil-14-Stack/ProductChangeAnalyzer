@@ -14,6 +14,10 @@ from prompts.remarks_prompt import (
     REMARKS_PROMPT
 )
 
+from prompts.business_intelligence_prompt import (
+    BUSINESS_INTELLIGENCE_PROMPT
+)
+
 
 class LLMService:
 
@@ -145,6 +149,8 @@ class LLMService:
 
         new_text,
 
+        difference,
+
         decision
 
     ):
@@ -157,6 +163,8 @@ class LLMService:
                 old_text=old_text,
 
                 new_text=new_text,
+
+                difference=difference["difference_text"],
 
                 decision=decision
 
@@ -209,3 +217,120 @@ class LLMService:
         except Exception as e:
 
             return f"Unable to generate business impact: {str(e)}"
+        
+    # ==================================================
+    # Generate Business Intelligence
+    # ==================================================
+
+    def generate_business_analysis(
+
+        self,
+
+        change
+
+    ):
+
+        """
+        Generates enterprise business intelligence
+        from a BusinessChange object.
+        """
+
+        try:
+
+            prompt = BUSINESS_INTELLIGENCE_PROMPT.format(
+
+                parameter=change.parameter,
+
+                matched_parameter=change.matched_parameter,
+
+                change_type=change.change_type,
+
+                old_value=change.old_value,
+
+                new_value=change.new_value,
+
+                difference=change.difference_text,
+
+                old_text=change.old_text,
+
+                new_text=change.new_text
+
+            )
+
+            response = self.client.responses.create(
+
+                model=OPENAI_MODEL,
+
+                input=prompt,
+
+                temperature=0
+
+            )
+
+            content = response.output_text.strip()
+
+            if content.startswith("```"):
+
+                content = (
+
+                    content
+
+                    .replace("```json", "")
+
+                    .replace("```", "")
+
+                    .strip()
+
+                )
+
+            result = json.loads(content)
+
+            return result
+
+        except Exception as e:
+
+            print(f"\nBusiness Intelligence Error : {e}")
+
+            return {
+
+                "summary": "Unable to generate summary.",
+
+                "business_impact": "",
+
+                "customer_impact": "",
+
+                "operational_impact": "",
+
+                "actuarial_impact": "",
+
+                "compliance_impact": "",
+
+                "migration_impact": "",
+
+                "affected_teams": [],
+
+                "testing_recommendations": [],
+
+                "risk": "Unknown",
+
+                "priority": "Unknown",
+
+                "business_criticality_score": 0,
+
+                "customer_communication_required": False,
+
+                "manual_review_required": True,
+
+                "confidence": 0,
+
+                "recommendations": [],
+
+                "assumptions": [],
+
+                "notes": [
+
+                    f"LLM Error: {str(e)}"
+
+                ]
+
+            }

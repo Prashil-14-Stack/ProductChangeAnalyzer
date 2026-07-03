@@ -5,8 +5,16 @@ from config.ai_config import (
     MIN_RETRIEVAL_SCORE
 )
 
+from models.semantic_index import SemanticIndex
+
 
 class SemanticRepository:
+    """
+    Enterprise Semantic Repository
+
+    Stores semantic embeddings of BusinessParameter
+    objects for intelligent comparison.
+    """
 
     def __init__(self):
 
@@ -24,29 +32,30 @@ class SemanticRepository:
 
         for document in documents:
 
-            version = document["version"]
-
-            filename = document["filename"]
-
-            for parameter, text in document["parameters"].items():
+            for parameter in document.parameters:
 
                 embedding = self.embedding.embed_passage(
-                    f"Parameter: {parameter}\nDescription: {text}"
+
+                    f"Parameter: {parameter.name}\n"
+                    f"Description: {parameter.value}"
+
                 )
 
-                self.repository.append({
+                semantic_index = SemanticIndex(
 
-                    "version": version,
+                    document=document,
 
-                    "filename": filename,
+                    parameter=parameter,
 
-                    "parameter": parameter,
+                    embedding=embedding
 
-                    "text": text,
+                )
 
-                    "embedding": embedding
+                self.repository.append(
 
-                })
+                    semantic_index
+
+                )
 
         return self.repository
 
@@ -69,48 +78,51 @@ class SemanticRepository:
     ):
 
         source_embedding = self.embedding.embed_query(
+
             source_parameter
+
         )
 
         candidates = []
 
-        for item in self.repository:
+        for index in self.repository:
 
-            # Only compare with target version
-            if item["version"] != target_version:
+            # ------------------------------------------
+            # Only compare against target version
+            # ------------------------------------------
+
+            if index.version != target_version:
 
                 continue
 
             similarity = self.embedding.cosine_similarity(
+
                 source_embedding,
-                item["embedding"]
+
+                index.embedding
+
             )
 
             similarity = round(
+
                 similarity * 100,
+
                 2
+
             )
 
-            # Remove obvious bad matches
             if similarity < MIN_RETRIEVAL_SCORE:
 
                 continue
 
             candidates.append({
 
-                "parameter": item["parameter"],
+                "index": index,
 
-                "text": item["text"],
-
-                "similarity": similarity,
-
-                "version": item["version"],
-
-                "filename": item["filename"]
+                "similarity": similarity
 
             })
 
-        # Highest similarity first
         candidates.sort(
 
             key=lambda x: x["similarity"],
@@ -122,7 +134,7 @@ class SemanticRepository:
         return candidates[:top_k]
 
     # =====================================================
-    # Backward Compatibility
+    # Retrieve Best Candidate
     # =====================================================
 
     def find_best_match(
@@ -149,16 +161,8 @@ class SemanticRepository:
 
         )
 
-        if len(candidates) == 0:
+        if not candidates:
 
-            return {
-
-                "parameter": None,
-
-                "text": "",
-
-                "similarity": 0
-
-            }
+            return None
 
         return candidates[0]

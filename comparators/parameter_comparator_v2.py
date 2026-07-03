@@ -2,9 +2,9 @@ from comparators.parameter_matcher import ParameterMatcher
 from comparators.description_matcher import DescriptionMatcher
 from comparators.change_detector import ChangeDetector
 from comparators.decision_engine import DecisionEngine
-
-from services.llm_service import LLMService
-
+from comparators.semantic_difference_engine import SemanticDifferenceEngine
+from ai.business_intelligence_engine import BusinessIntelligenceEngine
+from models.business_change import BusinessChange
 
 class ParameterComparator:
 
@@ -12,13 +12,15 @@ class ParameterComparator:
 
         self.parameter_matcher = ParameterMatcher()
 
+        self.difference_engine = SemanticDifferenceEngine()
+
         self.description_matcher = DescriptionMatcher()
 
         self.change_detector = ChangeDetector()
-
+        
         self.decision_engine = DecisionEngine()
 
-        self.llm = LLMService()
+        self.business_intelligence = BusinessIntelligenceEngine()
 
     # ==========================================================
     # Compare Documents
@@ -50,7 +52,8 @@ class ParameterComparator:
             # Compare every parameter
             # --------------------------------------------------
 
-            for parameter, source_text in source["parameters"].items():
+            for parameter in source.parameters:
+                source_text = parameter.value
 
                 # ----------------------------------------------
                 # Retrieve Top-K Semantic Candidates
@@ -58,25 +61,26 @@ class ParameterComparator:
 
                 candidates = repository.find_candidates(
 
-                    source_parameter=parameter,
+                    source_parameter=parameter.name,
 
-                    source_version=source["version"],
+                    source_version=source.version,
 
-                    target_version=target["version"]
+                    target_version=target.version
 
                 )
                 parameter_result = self.parameter_matcher.match(
 
-                    source_parameter=parameter,
+                    source_parameter=parameter.name,
 
                     source_description=source_text,
 
                     candidates=candidates
 
-                )                
+                )            
+                matched_parameter = matched_parameter.name
                 print("\n\n\n")
                 print("************* DEBUG *************")
-                print(f"Source Parameter: {parameter}")
+                print(f"Source Parameter: {parameter.name}")
 
                 if not candidates:
                     print("NO CANDIDATES FOUND")
@@ -96,9 +100,9 @@ class ParameterComparator:
 
                     comparison_table.append({
 
-                        "Source Version": source["version"],
+                        "Source Version": source.version,
 
-                        "Target Version": target["version"],
+                        "Target Version": target.version,
 
                         "V1 Parameter": parameter,
 
@@ -138,10 +142,66 @@ class ParameterComparator:
 
                     source_text,
 
-                    parameter_result["matched_text"]
+                    matched_parameter.value
 
                 )
 
+                difference_result = self.difference_engine.compare(
+
+                    old_text=source_text,
+
+                    new_text=matched_parameter.value
+
+                )
+                # ----------------------------------------------
+                # Business Change Object
+                # ----------------------------------------------
+
+                business_change = BusinessChange(
+
+                    # ======================================================
+                    # New Object-Oriented Model
+                    # ======================================================
+
+                    source_parameter=parameter,
+
+                    target_parameter=matched_parameter,
+
+                    # ======================================================
+                    # Backward Compatibility
+                    # ======================================================
+
+                    parameter=parameter.name,
+
+                    matched_parameter=matched_parameter.name,
+
+                    source_version=source.version,
+
+                    target_version=target.version,
+
+                    old_value=source_text,
+
+                    new_value=matched_parameter.value,
+
+                    old_text=source_text,
+
+                    new_text=matched_parameter.value,
+
+                    difference_text=difference_result["difference_text"],
+
+                    change_type=difference_result["change_type"]
+
+                )
+                # ----------------------------------------------
+                # Business Intelligence
+                # ----------------------------------------------
+
+                analysis = self.business_intelligence.analyze(
+
+                    business_change
+
+                )
+                remarks = analysis.summary
                 # ----------------------------------------------
                 # Change Detection
                 # ----------------------------------------------
@@ -150,7 +210,7 @@ class ParameterComparator:
 
                     source_text,
 
-                    parameter_result["matched_text"],
+                    matched_parameter.value,
 
                     description_result["confidence"]
 
@@ -167,27 +227,6 @@ class ParameterComparator:
                     description_result
 
                 )
-
-                # ----------------------------------------------
-                # Remarks (GPT Stub)
-                # ----------------------------------------------
-
-                if decision["status"] == "No Change":
-
-                    remarks = "No business impact."
-
-                else:
-
-                    remarks = self.llm.generate_remarks(
-
-                        parameter,
-
-                        source_text,
-
-                        parameter_result["matched_text"],
-
-                        decision=decision["status"]
-                    )
 
                 # ----------------------------------------------
                 # Overall Confidence
@@ -217,11 +256,11 @@ class ParameterComparator:
 
                     "Target Version": target["version"],
 
-                    "V1 Parameter": parameter,
+                    "V1 Parameter": parameter.name,
 
                     "Matched V2 Parameter":
 
-                        parameter_result["matched_parameter"],
+                        matched_parameter.name,
 
                     "Parameter Confidence":
 
@@ -253,7 +292,15 @@ class ParameterComparator:
 
                     "V2":
 
-                        parameter_result["matched_text"],
+                        matched_parameter.value,
+
+                    "Difference":
+
+                        difference_result["difference_text"],
+
+                    "Difference Segments":
+                        
+                        difference_result["segments"],
 
                     "Change Type":
 
@@ -265,7 +312,43 @@ class ParameterComparator:
 
                     "Remarks":
 
-                        remarks
+                        remarks,
+
+                    "Summary":
+
+                        analysis.summary,
+
+                    "Business Impact":
+
+                        analysis.business_impact,
+
+                    "Affected Teams":
+
+                        ", ".join(
+
+                            analysis.affected_teams
+
+                        ),
+
+                    "Testing":
+
+                        "\n".join(
+
+                            analysis.testing_recommendations
+
+                        ),
+
+                    "Risk":
+
+                        analysis.risk,
+
+                    "Priority":
+
+                        analysis.priority,
+
+                    "Business Criticality":
+
+                        analysis.business_criticality_score,
 
                 })
 

@@ -1,0 +1,125 @@
+# ==========================================================
+# Parameter Aliases
+#
+# Purpose:
+# Canonical business parameter names and their aliases.
+#
+# The key is the canonical parameter name.
+# The list contains alternate names that may appear in
+# product specifications.
+# ==========================================================
+
+Death Benefit:
+  - Death Benefit during PT
+  - Death Claim Benefit
+  - Benefit on Death
+  - Death Cover
+  - Death Benefit Payable
+
+Income Benefit:
+  - Income Benefit after deferment period
+  - Income during Deferment
+  - Guaranteed Income
+  - Income Payout
+  - Income Instalment
+
+Surrender Benefit:
+  - Surrender during PT
+  - Surrender Value
+  - Guaranteed Surrender Value
+  - Special Surrender Value
+
+Maturity Benefit:
+  - Lumpsum Benefit at Maturity
+  - Maturity Amount
+  - Benefit on Maturity
+  - Maturity Proceeds
+
+Policy Term:
+  - PT
+  - Insurance Term
+  - Policy Duration
+  - Coverage Term
+
+Premium Payment Term:
+  - PPT
+  - Premium Term
+  - Payment Term
+
+Premium Payment Frequency:
+  - Premium Frequency
+  - Payment Frequency
+  - Premium Mode
+  - Payment Mode
+
+Minimum Entry Age:
+  - Entry Age (Minimum)
+  - Minimum Age at Entry
+  - Min Entry Age
+
+Maximum Entry Age:
+  - Entry Age (Maximum)
+  - Maximum Age at Entry
+  - Max Entry Age
+
+Minimum Maturity Age:
+  - Minimum Age at Maturity
+  - Min Maturity Age
+
+Maximum Maturity Age:
+  - Maximum Age at Maturity
+  - Max Maturity Age
+
+Free Look Period:
+  - Free Look
+  - Cooling Off Period
+
+Grace Period:
+  - Grace
+  - Grace Days
+
+Revival:
+  - Policy Revival
+  - Reinstatement
+
+Loan:
+  - Policy Loan
+  - Loan Facility
+  - Loan Available
+
+Tax Benefit:
+  - Tax Benefits
+  - Income Tax Benefit
+
+Exclusions:
+  - Policy Exclusions
+  - Exclusion Clause
+
+Eligibility:
+  - Eligibility Criteria
+  - Eligibility Conditions
+  - Customer Eligibility
+
+Variants:
+  - Product Variants
+  - Plan Variants
+  - Options
+
+Plan Description:
+  - Product Description
+  - Plan Overview
+  - Plan Summary
+
+Charges:
+  - Policy Charges
+  - Applicable Charges
+
+Riders:
+  - Rider Benefits
+  - Optional Riders
+  - Additional Riders
+
+Options available under the product:
+  - Product Options
+  - Available Options
+  - Customer Options

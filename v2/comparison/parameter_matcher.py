@@ -11,18 +11,16 @@ Matching Strategy
 -----------------
 1. Exact Match
 2. Alias Match
-3. RapidFuzz Match
-
-Future
-------
-✓ LLM Semantic Matching
+3. RapidFuzz Candidate Generation
+4. Semantic LLM Match
 
 ==========================================================
 """
 
 from rapidfuzz import fuzz
 
-from knowledge.knowledge_loader import KnowledgeLoader
+from v2.knowledge.knowledge_loader import KnowledgeLoader
+from v2.comparison.semantic_matcher import SemanticMatcher
 
 
 class ParameterMatcher:
@@ -35,8 +33,11 @@ class ParameterMatcher:
 
         self.knowledge_loader = KnowledgeLoader()
 
-        # Similarity threshold
+        self.semantic_matcher = SemanticMatcher()
+
         self.similarity_threshold = 90
+
+        self.semantic_threshold = 70
 
     # ======================================================
     # Public
@@ -52,15 +53,14 @@ class ParameterMatcher:
 
         unmatched_v2 = list(specification_v2.parameters)
 
-        # --------------------------------------------------
-        # Match Version 1 Parameters
-        # --------------------------------------------------
-
         for parameter_v1 in specification_v1.parameters:
 
             parameter_v2 = self._find_best_match(
+
                 parameter_v1,
+
                 unmatched_v2
+
             )
 
             if parameter_v2:
@@ -70,7 +70,9 @@ class ParameterMatcher:
             matches.append({
 
                 "parameter_name": self._canonical_name(
+
                     parameter_v1.name
+
                 ),
 
                 "v1": parameter_v1,
@@ -79,16 +81,14 @@ class ParameterMatcher:
 
             })
 
-        # --------------------------------------------------
-        # Remaining Version 2 Parameters = Added
-        # --------------------------------------------------
-
         for parameter_v2 in unmatched_v2:
 
             matches.append({
 
                 "parameter_name": self._canonical_name(
+
                     parameter_v2.name
+
                 ),
 
                 "v1": None,
@@ -104,41 +104,49 @@ class ParameterMatcher:
     # ======================================================
 
     def _find_best_match(
+
         self,
+
         parameter_v1,
+
         candidates
+
     ):
 
         canonical_v1 = self._canonical_name(
+
             parameter_v1.name
+
         )
 
-        # ----------------------------------------------
-        # Exact Canonical Match
-        # ----------------------------------------------
+        # --------------------------------------------------
+        # Exact / Alias Match
+        # --------------------------------------------------
 
         for parameter_v2 in candidates:
 
             canonical_v2 = self._canonical_name(
+
                 parameter_v2.name
+
             )
 
             if canonical_v1 == canonical_v2:
 
                 return parameter_v2
 
-        # ----------------------------------------------
-        # RapidFuzz Match
-        # ----------------------------------------------
+        # --------------------------------------------------
+        # Candidate Generation
+        # --------------------------------------------------
 
-        best_match = None
-
-        best_score = 0
+        shortlisted = []
 
         for parameter_v2 in candidates:
 
             canonical_v2 = self._canonical_name(
+
                 parameter_v2.name
+
             )
 
             score = fuzz.token_sort_ratio(
@@ -149,15 +157,57 @@ class ParameterMatcher:
 
             )
 
-            if score > best_score:
+            if score >= self.semantic_threshold:
 
-                best_score = score
+                shortlisted.append({
 
-                best_match = parameter_v2
+                    "parameter": parameter_v2,
 
-        if best_score >= self.similarity_threshold:
+                    "score": score
 
-            return best_match
+                })
+
+        if not shortlisted:
+
+            return None
+
+        shortlisted.sort(
+
+            key=lambda item: item["score"],
+
+            reverse=True
+
+        )
+
+        # --------------------------------------------------
+        # High Confidence Match
+        # --------------------------------------------------
+
+        if shortlisted[0]["score"] >= self.similarity_threshold:
+
+            return shortlisted[0]["parameter"]
+
+        # --------------------------------------------------
+        # Semantic Match
+        # --------------------------------------------------
+
+        semantic_result = self.semantic_matcher.find_best_match(
+
+            parameter_v1,
+
+            [
+
+                item["parameter"]
+
+                for item in shortlisted
+
+            ]
+
+        )
+
+        if semantic_result:
+
+            return semantic_result["parameter"]
 
         return None
 
@@ -166,21 +216,33 @@ class ParameterMatcher:
     # ======================================================
 
     def _canonical_name(
+
         self,
+
         parameter_name
+
     ):
 
         canonical = self.knowledge_loader.get_canonical_name(
+
             parameter_name
+
         )
 
-        return self._normalize(canonical)
+        return self._normalize(
+
+            canonical
+
+        )
 
     # ------------------------------------------------------
 
     def _normalize(
+
         self,
+
         text
+
     ):
 
         if not text:

@@ -69,7 +69,7 @@ class AnalysisService:
         # Build Semantic Repository
         # ===================================================
 
-        repository = SemanticRepository()
+        repository = SemanticRepositoryV2()
 
         repository.build(
 

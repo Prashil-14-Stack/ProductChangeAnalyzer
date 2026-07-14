@@ -15,9 +15,9 @@ Responsibilities
 ==========================================================
 """
 
-from models.document_chunk import DocumentChunk
+from v2.models.document_chunk import DocumentChunk
 
-from config.settings import MAX_PAGES_PER_CHUNK
+from v2.config.settings import MAX_PAGES_PER_CHUNK
 
 
 class DocumentChunker:

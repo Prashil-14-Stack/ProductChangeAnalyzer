@@ -25,7 +25,7 @@ This class DOES NOT
 ==========================================================
 """
 
-from models.product_specification import ProductSpecification
+from v2.models.product_specification import ProductSpecification
 
 
 class SpecificationMerger:

@@ -1,0 +1,153 @@
+# ==========================================================
+# Insurance Business Dictionary
+#
+# Canonical list of insurance business parameters.
+#
+# Used by:
+#   - ParameterExtractor
+#   - ParameterNormalizer
+#   - SemanticMatcher
+#
+# ==========================================================
+
+Eligibility:
+
+  - Minimum Entry Age
+  - Maximum Entry Age
+  - Minimum Maturity Age
+  - Maximum Maturity Age
+  - Entry Age
+  - Maturity Age
+  - Age at Entry
+  - Age at Maturity
+
+Policy:
+
+  - Policy Term
+  - Premium Paying Term
+  - Premium Payment Term
+  - Premium Frequency
+  - Premium Mode
+  - Policy Status
+  - Policy Commencement Date
+  - Policy Anniversary
+  - Policy Currency
+
+Premium:
+
+  - Basic Premium
+  - Annual Premium
+  - Modal Premium
+  - Single Premium
+  - Top-up Premium
+  - Premium Payment Frequency
+  - Premium Allocation
+
+Benefits:
+
+  - Death Benefit
+  - Maturity Benefit
+  - Survival Benefit
+  - Income Benefit
+  - Guaranteed Income
+  - Guaranteed Benefit
+  - Loyalty Addition
+  - Terminal Bonus
+  - Reversionary Bonus
+  - Vesting Benefit
+  - Accidental Death Benefit
+  - Critical Illness Benefit
+
+Investment:
+
+  - Fund Value
+  - Fund Option
+  - NAV
+  - Asset Allocation
+  - Switching
+  - Partial Withdrawal
+  - Top-up
+  - Auto Rebalancing
+
+Charges:
+
+  - Premium Allocation Charge
+  - Policy Administration Charge
+  - Fund Management Charge
+  - Mortality Charge
+  - Rider Charge
+  - Surrender Charge
+  - Discontinuance Charge
+  - Switching Charge
+
+Loan:
+
+  - Policy Loan
+  - Loan Interest
+  - Loan Eligibility
+
+Revival:
+
+  - Grace Period
+  - Revival Period
+  - Revival Conditions
+
+Tax:
+
+  - Tax Benefit
+  - GST
+  - Income Tax Benefit
+
+Nomination:
+
+  - Nominee
+  - Appointee
+  - Assignment
+
+Riders:
+
+  - Rider
+  - Accidental Death Rider
+  - Critical Illness Rider
+  - Waiver of Premium Rider
+  - Hospital Cash Rider
+  - Disability Rider
+
+Settlement:
+
+  - Settlement Option
+  - Settlement Period
+  - Installment Option
+
+Claims:
+
+  - Claim Process
+  - Claim Documents
+  - Death Claim
+  - Maturity Claim
+  - Survival Claim
+
+Surrender:
+
+  - Surrender Value
+  - Guaranteed Surrender Value
+  - Special Surrender Value
+  - Surrender Benefit
+
+Free Look:
+
+  - Free Look Period
+  - Free Look Cancellation
+
+Miscellaneous:
+
+  - Risk Commencement Date
+  - Cooling Off Period
+  - Lock-in Period
+  - Vesting Date
+  - Vesting Age
+  - Auto Cover Continuance
+  - Paid-up Value
+  - Reduced Paid-up
+  - Lapse
+  - Forfeiture

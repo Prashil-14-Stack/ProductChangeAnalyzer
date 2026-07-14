@@ -28,8 +28,8 @@ This class DOES NOT
 from pathlib import Path
 import fitz
 
-from models.document import Document
-from models.page import Page
+from v2.models.document import Document
+from v2.models.page import Page
 
 
 class PDFReader:

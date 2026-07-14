@@ -6,6 +6,7 @@ from comparators.semantic_difference_engine import SemanticDifferenceEngine
 from ai.business_intelligence_engine import BusinessIntelligenceEngine
 from models.business_change import BusinessChange
 
+
 class ParameterComparator:
 
     def __init__(self):
@@ -17,7 +18,7 @@ class ParameterComparator:
         self.description_matcher = DescriptionMatcher()
 
         self.change_detector = ChangeDetector()
-        
+
         self.decision_engine = DecisionEngine()
 
         self.business_intelligence = BusinessIntelligenceEngine()
@@ -38,26 +39,19 @@ class ParameterComparator:
 
         comparison_table = []
 
-        # ------------------------------------------------------
-        # Compare V1→V2, V2→V3 ...
-        # ------------------------------------------------------
-
         for i in range(len(documents) - 1):
 
             source = documents[i]
 
             target = documents[i + 1]
 
-            # --------------------------------------------------
-            # Compare every parameter
-            # --------------------------------------------------
-
             for parameter in source.parameters:
+
                 source_text = parameter.value
 
-                # ----------------------------------------------
-                # Retrieve Top-K Semantic Candidates
-                # ----------------------------------------------
+                # ------------------------------------------
+                # Find Semantic Candidates
+                # ------------------------------------------
 
                 candidates = repository.find_candidates(
 
@@ -68,6 +62,7 @@ class ParameterComparator:
                     target_version=target.version
 
                 )
+
                 parameter_result = self.parameter_matcher.match(
 
                     source_parameter=parameter.name,
@@ -76,25 +71,11 @@ class ParameterComparator:
 
                     candidates=candidates
 
-                )            
-                matched_parameter = matched_parameter.name
-                print("\n\n\n")
-                print("************* DEBUG *************")
-                print(f"Source Parameter: {parameter.name}")
+                )
 
-                if not candidates:
-                    print("NO CANDIDATES FOUND")
-                else:
-                    for i, c in enumerate(candidates, start=1):
-                        print(
-                            f"{i}. {c['parameter']} | {c['similarity']}%"
-                        )
-
-                print("********************************")
-                print("\n\n\n")
-                # ----------------------------------------------
-                # No Match Found
-                # ----------------------------------------------
+                # ------------------------------------------
+                # No Match
+                # ------------------------------------------
 
                 if parameter_result["status"] == "No Match":
 
@@ -104,7 +85,7 @@ class ParameterComparator:
 
                         "Target Version": target.version,
 
-                        "V1 Parameter": parameter,
+                        "V1 Parameter": parameter.name,
 
                         "Matched V2 Parameter": "NO MATCH FOUND",
 
@@ -134,9 +115,15 @@ class ParameterComparator:
 
                     continue
 
-                # ----------------------------------------------
-                # Description Matching
-                # ----------------------------------------------
+                # ------------------------------------------
+                # Matched Parameter
+                # ------------------------------------------
+
+                matched_parameter = parameter_result["matched_parameter"]
+
+                # ------------------------------------------
+                # Description Comparison
+                # ------------------------------------------
 
                 description_result = self.description_matcher.compare(
 
@@ -153,23 +140,12 @@ class ParameterComparator:
                     new_text=matched_parameter.value
 
                 )
-                # ----------------------------------------------
-                # Business Change Object
-                # ----------------------------------------------
+
+                # ------------------------------------------
+                # Business Change
+                # ------------------------------------------
 
                 business_change = BusinessChange(
-
-                    # ======================================================
-                    # New Object-Oriented Model
-                    # ======================================================
-
-                    source_parameter=parameter,
-
-                    target_parameter=matched_parameter,
-
-                    # ======================================================
-                    # Backward Compatibility
-                    # ======================================================
 
                     parameter=parameter.name,
 
@@ -192,19 +168,20 @@ class ParameterComparator:
                     change_type=difference_result["change_type"]
 
                 )
-                # ----------------------------------------------
-                # Business Intelligence
-                # ----------------------------------------------
+
+                # ------------------------------------------
+                # AI Analysis
+                # ------------------------------------------
 
                 analysis = self.business_intelligence.analyze(
 
                     business_change
 
                 )
-                remarks = analysis.summary
-                # ----------------------------------------------
+
+                # ------------------------------------------
                 # Change Detection
-                # ----------------------------------------------
+                # ------------------------------------------
 
                 change_result = self.change_detector.detect(
 
@@ -216,9 +193,9 @@ class ParameterComparator:
 
                 )
 
-                # ----------------------------------------------
-                # Final Decision
-                # ----------------------------------------------
+                # ------------------------------------------
+                # Decision
+                # ------------------------------------------
 
                 decision = self.decision_engine.decide(
 
@@ -228,15 +205,13 @@ class ParameterComparator:
 
                 )
 
-                # ----------------------------------------------
-                # Overall Confidence
-                # ----------------------------------------------
-
                 overall_confidence = round(
 
                     (
 
-                        parameter_result["confidence"] +
+                        parameter_result["confidence"]
+
+                        +
 
                         description_result["confidence"]
 
@@ -246,109 +221,67 @@ class ParameterComparator:
 
                 )
 
-                # ----------------------------------------------
-                # Final Row
-                # ----------------------------------------------
+                # ------------------------------------------
+                # Final Output
+                # ------------------------------------------
 
                 comparison_table.append({
 
-                    "Source Version": source["version"],
+                    "Source Version": source.version,
 
-                    "Target Version": target["version"],
+                    "Target Version": target.version,
 
                     "V1 Parameter": parameter.name,
 
-                    "Matched V2 Parameter":
+                    "Matched V2 Parameter": matched_parameter.name,
 
-                        matched_parameter.name,
+                    "Parameter Confidence": parameter_result["confidence"],
 
-                    "Parameter Confidence":
+                    "Confidence Band": parameter_result["confidence_band"],
 
-                        parameter_result["confidence"],
+                    "Description Confidence": description_result["confidence"],
 
-                    "Confidence Band":
+                    "Overall Confidence": overall_confidence,
 
-                        parameter_result["confidence_band"],
+                    "Decision": decision["status"],
 
-                    "Description Confidence":
+                    "Status": decision["status"],
 
-                        description_result["confidence"],
+                    "V1": source_text,
 
-                    "Overall Confidence":
+                    "V2": matched_parameter.value,
 
-                        overall_confidence,
+                    "Difference": difference_result["difference_text"],
 
-                    "Decision":
+                    "Difference Segments": difference_result["segments"],
 
-                        decision["status"],
+                    "Change Type": change_result["change_type"],
 
-                    "Status":
+                    "Severity": change_result["severity"],
 
-                        decision["status"],
+                    "Remarks": analysis.summary,
 
-                    "V1":
+                    "Summary": analysis.summary,
 
-                        source_text,
+                    "Business Impact": analysis.business_impact,
 
-                    "V2":
+                    "Affected Teams": ", ".join(
 
-                        matched_parameter.value,
+                        analysis.affected_teams
 
-                    "Difference":
+                    ),
 
-                        difference_result["difference_text"],
+                    "Testing": "\n".join(
 
-                    "Difference Segments":
-                        
-                        difference_result["segments"],
+                        analysis.testing_recommendations
 
-                    "Change Type":
+                    ),
 
-                        change_result["change_type"],
+                    "Risk": analysis.risk,
 
-                    "Severity":
+                    "Priority": analysis.priority,
 
-                        change_result["severity"],
-
-                    "Remarks":
-
-                        remarks,
-
-                    "Summary":
-
-                        analysis.summary,
-
-                    "Business Impact":
-
-                        analysis.business_impact,
-
-                    "Affected Teams":
-
-                        ", ".join(
-
-                            analysis.affected_teams
-
-                        ),
-
-                    "Testing":
-
-                        "\n".join(
-
-                            analysis.testing_recommendations
-
-                        ),
-
-                    "Risk":
-
-                        analysis.risk,
-
-                    "Priority":
-
-                        analysis.priority,
-
-                    "Business Criticality":
-
-                        analysis.business_criticality_score,
+                    "Business Criticality": analysis.business_criticality_score
 
                 })
 

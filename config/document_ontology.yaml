@@ -1,0 +1,135 @@
+# ==========================================================
+# ProductChangeAnalyzer
+# Enterprise Document Ontology
+#
+# This file contains the business vocabulary used by the
+# Document Intelligence Engine.
+#
+# Domain: Insurance
+# ==========================================================
+
+document:
+
+  headings:
+
+    - Plan Description
+    - Eligibility
+    - Benefits
+    - Death Benefit
+    - Maturity Benefit
+    - Survival Benefit
+    - Surrender Benefit
+    - Loan
+    - Revival
+    - Free Look Period
+    - Grace Period
+    - Exclusions
+    - Riders
+    - Tax Benefits
+    - Policy Term
+    - Premium Payment Term
+    - Premium Payment Frequency
+    - Entry Age
+    - Minimum Entry Age
+    - Maximum Entry Age
+    - Maturity Age
+    - Minimum Maturity Age
+    - Maximum Maturity Age
+    - Sum Assured
+    - Variant
+    - Variants
+    - Options
+    - Options available under the product
+    - Income Benefit
+    - Guaranteed Benefit
+    - Nominee
+    - Assignment
+    - Nomination
+    - Suicide Clause
+    - Reduced Paid-up
+    - Policy Loan
+    - Charges
+    - Fund Options
+    - Risk Cover
+    - Waiting Period
+
+# ----------------------------------------------------------
+
+tables:
+
+  names:
+
+    - Benefit Illustration
+    - Charges
+    - Premium Rates
+    - Mortality Charges
+    - Policy Charges
+    - Rider Charges
+    - Eligibility Matrix
+    - Premium Matrix
+    - Variant Comparison
+    - Benefits Table
+
+# ----------------------------------------------------------
+
+lists:
+
+  indicators:
+
+    - "-"
+    - "•"
+    - "▪"
+    - "○"
+    - "✓"
+    - "*"
+    - "a)"
+    - "b)"
+    - "c)"
+    - "i)"
+    - "ii)"
+    - "iii)"
+    - "1."
+    - "2."
+    - "3."
+
+# ----------------------------------------------------------
+
+sections:
+
+  names:
+
+    - Overview
+    - Eligibility
+    - Benefits
+    - Charges
+    - Exclusions
+    - Claims
+    - Riders
+    - Terms and Conditions
+    - Premium Details
+    - Policy Features
+    - Settlement Options
+    - Tax Benefits
+
+# ----------------------------------------------------------
+
+footer:
+
+  keywords:
+
+    - IRDAI
+    - Policy ##
+    - Page
+    - Confidential
+
+# ----------------------------------------------------------
+
+header:
+
+  keywords:
+
+    - Product Specification
+    - Version
+    - Effective Date
+    - Product Name
+    - Internal Use Only

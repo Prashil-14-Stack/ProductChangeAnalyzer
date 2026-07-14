@@ -1,8 +1,11 @@
 import os
 import shutil
 
+from models.document import Document
+
 from readers.word_reader import WordReader
-from readers.pdf_reader import PDFReader
+from readers.pdf_reader_v2 import PDFReaderV2
+
 
 class FileHelper:
 
@@ -12,23 +15,31 @@ class FileHelper:
         from config import UPLOAD_FOLDER
 
         os.makedirs(
-        UPLOAD_FOLDER,
-        exist_ok=True
+
+            UPLOAD_FOLDER,
+
+            exist_ok=True
+
         )
 
     @staticmethod
     def folder_exists(folder_path):
 
         return os.path.exists(
+
             folder_path
+
         )
 
     @staticmethod
     def copy_file(source, destination):
 
         shutil.copy(
+
             source,
+
             destination
+
         )
 
     @staticmethod
@@ -53,8 +64,11 @@ class FileHelper:
             return 0
 
         return round(
+
             os.path.getsize(file_path) / 1024,
+
             2
+
         )
 
     @staticmethod
@@ -65,27 +79,64 @@ class FileHelper:
             return []
 
         return sorted(
+
             os.listdir(folder_path)
+
         )
-    
-    @staticmethod    
-    def read_document(uploaded_file):
+
+    # ==========================================================
+    # Read Document
+    # ==========================================================
+
+    @staticmethod
+    def read_document(
+
+        uploaded_file
+
+    ) -> Document:
+
         """
         Automatically selects the correct reader
-        based on the uploaded file extension.
+        and returns a canonical Document object.
         """
 
-        extension = uploaded_file.name.lower().split(".")[-1]
+        _, extension = os.path.splitext(uploaded_file.name.lower())
+        extension = extension.lstrip(".")
+
+        # ------------------------------------------------------
+        # Microsoft Word
+        # ------------------------------------------------------
 
         if extension == "docx":
+
             reader = WordReader()
-            return reader.read(uploaded_file)
+
+            return reader.read(
+
+                uploaded_file
+
+            )
+
+        # ------------------------------------------------------
+        # PDF
+        # ------------------------------------------------------
 
         elif extension == "pdf":
-            reader = PDFReader()
-            return reader.read(uploaded_file)
 
-        else:
-            raise ValueError(
-                f"Unsupported file type: {extension}"
+            reader = PDFReaderV2()
+
+            return reader.read(
+
+                uploaded_file
+
             )
+
+        # ------------------------------------------------------
+        # Unsupported
+        # ------------------------------------------------------
+
+        raise ValueError(
+
+            f"Unsupported file type: {extension}"
+
+        )

@@ -5,15 +5,13 @@ from config.ai_config import (
     MIN_RETRIEVAL_SCORE
 )
 
-from models.semantic_index import SemanticIndex
-
 
 class SemanticRepository:
     """
-    Enterprise Semantic Repository
+    Stable Semantic Repository (DOCX Pipeline)
 
-    Stores semantic embeddings of BusinessParameter
-    objects for intelligent comparison.
+    Stores semantic embeddings for dictionary-based
+    parameters extracted by WordReader.
     """
 
     def __init__(self):
@@ -32,30 +30,29 @@ class SemanticRepository:
 
         for document in documents:
 
-            for parameter in document.parameters:
+            for parameter, description in document["parameters"].items():
 
                 embedding = self.embedding.embed_passage(
 
-                    f"Parameter: {parameter.name}\n"
-                    f"Description: {parameter.value}"
+                    f"Parameter: {parameter}\n"
+
+                    f"Description: {description}"
 
                 )
 
-                semantic_index = SemanticIndex(
+                self.repository.append({
 
-                    document=document,
+                    "version": document["version"],
 
-                    parameter=parameter,
+                    "filename": document["filename"],
 
-                    embedding=embedding
+                    "parameter": parameter,
 
-                )
+                    "text": description,
 
-                self.repository.append(
+                    "embedding": embedding
 
-                    semantic_index
-
-                )
+                })
 
         return self.repository
 
@@ -85,13 +82,9 @@ class SemanticRepository:
 
         candidates = []
 
-        for index in self.repository:
+        for item in self.repository:
 
-            # ------------------------------------------
-            # Only compare against target version
-            # ------------------------------------------
-
-            if index.version != target_version:
+            if item["version"] != target_version:
 
                 continue
 
@@ -99,7 +92,7 @@ class SemanticRepository:
 
                 source_embedding,
 
-                index.embedding
+                item["embedding"]
 
             )
 
@@ -117,7 +110,13 @@ class SemanticRepository:
 
             candidates.append({
 
-                "index": index,
+                "parameter": item["parameter"],
+
+                "text": item["text"],
+
+                "version": item["version"],
+
+                "filename": item["filename"],
 
                 "similarity": similarity
 

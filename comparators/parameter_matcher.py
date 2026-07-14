@@ -45,10 +45,10 @@ class ParameterMatcher:
     ):
 
         """
-        Matching Strategy
+        Stable DOCX Parameter Matching
 
         Step 1
-            Exact parameter match
+            Exact parameter name matching
 
         Step 2
             GPT validation
@@ -94,11 +94,9 @@ class ParameterMatcher:
 
         for candidate in candidates:
 
-            semantic_index = candidate["index"]
-
             normalized_candidate = normalize_parameter(
 
-                semantic_index.parameter.name
+                candidate["parameter"]
 
             )
 
@@ -106,9 +104,7 @@ class ParameterMatcher:
 
                 print(
 
-                    f"✅ Exact Match Found : "
-
-                    f"{semantic_index.parameter.name}"
+                    f"✅ Exact Match Found : {candidate['parameter']}"
 
                 )
 
@@ -122,22 +118,13 @@ class ParameterMatcher:
 
                     "match_type": "Exact Match",
 
-                    "matched_parameter":
+                    "matched_parameter": candidate["parameter"],
 
-                        semantic_index.parameter,
+                    "matched_text": candidate["text"],
 
-                    # Temporary (will remove after comparator migration)
-                    "matched_text":
+                    "matched_version": candidate["version"],
 
-                        semantic_index.parameter.value,
-
-                    "matched_version":
-
-                        semantic_index.version,
-
-                    "matched_filename":
-
-                        semantic_index.filename
+                    "matched_filename": candidate["filename"]
 
                 }
 
@@ -150,29 +137,15 @@ class ParameterMatcher:
 
         for candidate in candidates:
 
-            semantic_index = candidate["index"]
-
             print(
 
                 f"🤖 Checking Candidate : "
 
-                f"{semantic_index.parameter.name} "
+                f"{candidate['parameter']} "
 
                 f"({candidate['similarity']}%)"
 
             )
-
-            llm_candidate = {
-
-                "parameter":
-
-                    semantic_index.parameter.name,
-
-                "text":
-
-                    semantic_index.parameter.value
-
-            }
 
             llm_result = self.llm.validate_parameter_match(
 
@@ -180,7 +153,7 @@ class ParameterMatcher:
 
                 source_description=source_description,
 
-                candidates=[llm_candidate]
+                candidates=[candidate]
 
             )
 
@@ -225,8 +198,6 @@ class ParameterMatcher:
 
         similarity = selected_candidate["similarity"]
 
-        semantic_index = selected_candidate["index"]
-
         if similarity >= PARAMETER_MATCH_THRESHOLD:
 
             status = "Matched"
@@ -257,21 +228,12 @@ class ParameterMatcher:
 
             "confidence_band": band,
 
-            "matched_parameter":
+            "matched_parameter": selected_candidate["parameter"],
 
-                semantic_index.parameter,
+            "matched_text": selected_candidate["text"],
 
-            # Temporary
-            "matched_text":
+            "matched_version": selected_candidate["version"],
 
-                semantic_index.parameter.value,
-
-            "matched_version":
-
-                semantic_index.version,
-
-            "matched_filename":
-
-                semantic_index.filename
+            "matched_filename": selected_candidate["filename"]
 
         }

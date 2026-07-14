@@ -153,9 +153,20 @@ def login_screen():
         #st.markdown("<br>", unsafe_allow_html=True)
     with left:
 
-        st.image(
-          "images/bajaj_logo.png",
-          width=380
+        st.markdown("## 🏢 Bajaj Allianz Life Insurance")
+
+        st.markdown(
+            """
+            ### Enterprise AI Features
+
+            ✅ Semantic Parameter Matching
+
+            ✅ AI Product Comparison
+
+            ✅ Business Impact Assessment
+
+            ✅ Excel Report Generation
+            """
         )
     
         #st.info(

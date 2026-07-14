@@ -27,14 +27,16 @@ ProductSpecification
 
 import json
 
-from llm.prompt_builder import PromptBuilder
-from llm.openai_client import OpenAIClient
-from llm.response_parser import ResponseParser
-from llm.specification_merger import SpecificationMerger
+from v2.llm.prompt_builder import PromptBuilder
+from v2.llm.openai_client import OpenAIClient
+from v2.llm.response_parser import ResponseParser
+from v2.llm.specification_merger import SpecificationMerger
 
-from readers.document_chunker import DocumentChunker
+from v2.normalization.parameter_normalizer import ParameterNormalizer
 
-from config.settings import (
+from v2.readers.document_chunker import DocumentChunker
+
+from v2.config.settings import (
     PROMPTS_FOLDER,
     JSON_RETRY_COUNT
 )
@@ -59,6 +61,8 @@ class LLMService:
         self.chunker = DocumentChunker()
 
         self.merger = SpecificationMerger()
+
+        self.parameter_normalizer = ParameterNormalizer()
 
     # ======================================================
     # Health Check
@@ -117,7 +121,9 @@ class LLMService:
         merged = self.merger.merge(
             specifications
         )
-
+        merged = self.parameter_normalizer.normalize_specification(
+            merged
+        )
         return merged
 
     # ======================================================
@@ -135,27 +141,102 @@ class LLMService:
 
         last_error = None
 
-        for attempt in range(
-            JSON_RETRY_COUNT
-        ):
+        for attempt in range(JSON_RETRY_COUNT):
 
             try:
 
-                response = self.client.generate(
-                    prompt
-                )
+                # --------------------------------------------------
+                # Prompt being sent to GPT
+                # --------------------------------------------------
 
-                if not self.parser.validate_json(
-                    response
-                ):
+                print("\n" + "=" * 100)
+                print("PROMPT SENT TO GPT")
+                print("=" * 100)
+                print(prompt)
+                print("=" * 100)
+
+                # --------------------------------------------------
+                # Call GPT
+                # --------------------------------------------------
+
+                response = self.client.generate(prompt)
+
+                # --------------------------------------------------
+                # Raw GPT Response
+                # --------------------------------------------------
+
+                print("\n" + "=" * 100)
+                print("RAW GPT RESPONSE")
+                print("=" * 100)
+                print(response)
+                print("=" * 100)
+
+                # --------------------------------------------------
+                # Validate JSON
+                # --------------------------------------------------
+
+                if not self.parser.validate_json(response):
+
+                    print("\n❌ INVALID JSON RECEIVED FROM GPT\n")
 
                     raise ValueError(
                         "Invalid JSON returned by GPT."
                     )
 
+                print("\n✅ JSON VALIDATION PASSED")
+
+                # --------------------------------------------------
+                # Parse JSON
+                # --------------------------------------------------
+
                 specification = self.parser.parse_product_specification(
                     response
                 )
+
+                # --------------------------------------------------
+                # Parser Output
+                # --------------------------------------------------
+
+                print("\n" + "=" * 100)
+                print("PARSER OUTPUT")
+                print("=" * 100)
+
+                print("Specification Type:", type(specification))
+
+                print("\nAvailable Attributes:")
+                print(specification.__dict__)
+
+                print("\nParameter Count:",
+                    len(specification.parameters))
+
+                for i, parameter in enumerate(specification.parameters, start=1):
+
+                    print(f"{i}. {parameter.name}")
+
+                    if i >= 20:
+                        print("...")
+                        break
+
+                print("=" * 100)
+
+                print(
+                    f"Parameters   : {len(specification.parameters)}"
+                )
+
+                print("-" * 100)
+
+                for i, parameter in enumerate(
+                    specification.parameters,
+                    start=1
+                ):
+
+                    print(f"{i}. {parameter.name}")
+
+                    if i == 20:
+                        print("...more parameters omitted...")
+                        break
+
+                print("=" * 100)
 
                 return specification
 
@@ -163,25 +244,16 @@ class LLMService:
 
                 last_error = error
 
+                print("\n❌ ERROR OCCURRED")
+                print(error)
+
                 print(
-
-                    f"Retry "
-
-                    f"{attempt + 1}/"
-
-                    f"{JSON_RETRY_COUNT}"
-
+                    f"\nRetry {attempt + 1}/{JSON_RETRY_COUNT}"
                 )
 
         raise RuntimeError(
 
-            f"Chunk "
-
-            f"{chunk.chunk_id}"
-
-            f" failed.\n"
-
-            f"{last_error}"
+            f"Chunk {chunk.chunk_id} failed.\n{last_error}"
 
         )
 

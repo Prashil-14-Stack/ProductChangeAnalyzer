@@ -1,3 +1,5 @@
+from models.document import Document
+
 from processors.business_tokenizer import BusinessTokenizer
 from processors.insurance_dictionary import InsuranceDictionary
 from processors.parameter_detection_engine import ParameterDetectionEngine
@@ -27,38 +29,68 @@ class ParameterExtractor:
 
         self,
 
-        document
+        document: Document
 
-    ):
+    ) -> Document:
 
-        # ------------------------------------------------------
+        # ----------------------------------------------
+        # Clear Previous Extraction
+        # ----------------------------------------------
+
+        document.parameters.clear()
+
+        # ----------------------------------------------
         # Every Page
-        # ------------------------------------------------------
+        # ----------------------------------------------
 
         for page in document.pages:
 
-            # --------------------------------------------------
+            # ----------------------------------------------
             # Every Block
-            # --------------------------------------------------
+            # ----------------------------------------------
 
             for block in page.blocks:
 
-                parameter = self.detector.detect(
+                try:
 
-                    block=block,
+                    parameter = self.detector.detect(
 
-                    page=page,
+                        block=block,
 
-                    source_document=document.filename
+                        page=page,
 
-                )
+                        source_document=document.filename
+
+                    )
+
+                except Exception as ex:
+
+                    print(f"Parameter Detection Error: {ex}")
+
+                    continue
 
                 if parameter is None:
 
                     continue
 
                 # ----------------------------------------------
-                # NLP
+                # Prevent Duplicate Parameters
+                # ----------------------------------------------
+
+                existing_parameters = {
+
+                    p.name.lower()
+
+                    for p in document.parameters
+
+                }
+
+                if parameter.name.lower() in existing_parameters:
+
+                    continue
+
+                # ----------------------------------------------
+                # NLP Tokenization
                 # ----------------------------------------------
 
                 tokens = self.tokenizer.tokenize(
@@ -81,7 +113,7 @@ class ParameterExtractor:
 
                     if self.dictionary.is_known_term(
 
-                        token
+                        token["value"]
 
                     )
 
@@ -104,7 +136,7 @@ class ParameterExtractor:
                 )
 
                 # ----------------------------------------------
-                # Add to Document
+                # Add Parameter to Document
                 # ----------------------------------------------
 
                 document.add_parameter(

@@ -21,6 +21,9 @@ Change Classifier
 Impact Analyzer
         │
         ▼
+AI Change Assessment
+        │
+        ▼
 Comparison Summary
         │
         ▼
@@ -29,12 +32,14 @@ ComparisonResult
 ==========================================================
 """
 
-from comparison.parameter_matcher import ParameterMatcher
-from comparison.change_classifier import ChangeClassifier
-from comparison.impact_analyzer import ImpactAnalyzer
-from comparison.comparison_summary import ComparisonSummary
+from v2.comparison.parameter_matcher import ParameterMatcher
+from v2.comparison.change_classifier import ChangeClassifier
+from v2.comparison.impact_analyzer import ImpactAnalyzer
+from v2.comparison.comparison_summary import ComparisonSummary
 
-from models.comparison_result import ComparisonResult
+from v2.models.comparison_result import ComparisonResult
+
+from v2.ai.change_assessment_generator import ChangeAssessmentGenerator
 
 
 class ComparisonEngine:
@@ -56,6 +61,8 @@ class ComparisonEngine:
         self.impact = ImpactAnalyzer()
 
         self.summary = ComparisonSummary()
+
+        self.change_assessment = ChangeAssessmentGenerator()
 
     # ======================================================
     # Compare Specifications
@@ -93,16 +100,129 @@ class ComparisonEngine:
 
         for match in matched_parameters:
 
-            comparison = self.classifier.classify(match)
+            # ------------------------------------------
+            # Classify
+            # ------------------------------------------
+
+            comparison = self.classifier.classify(
+                match
+            )
+
+            # ------------------------------------------
+            # Impact Analysis
+            # ------------------------------------------
 
             comparison = self.impact.analyze(
                 comparison
             )
 
+            # ------------------------------------------
+            # AI Change Assessment
+            # ------------------------------------------
+
+            try:
+
+                assessment = self.change_assessment.generate(
+                    comparison
+                )
+
+                if assessment is None:
+
+                    raise RuntimeError(
+                        "ChangeAssessmentGenerator returned None."
+                    )
+
+                comparison.summary = getattr(
+                    assessment,
+                    "executive_summary",
+                    ""
+                )
+
+                comparison.business_impact = getattr(
+                    assessment,
+                    "business_impact",
+                    ""
+                )
+
+                comparison.remarks = getattr(
+                    assessment,
+                    "remarks",
+                    ""
+                )
+
+                comparison.risk = getattr(
+                    assessment,
+                    "risk",
+                    ""
+                )
+
+                comparison.priority = getattr(
+                    assessment,
+                    "priority",
+                    ""
+                )
+
+                comparison.business_criticality = getattr(
+                    assessment,
+                    "business_criticality",
+                    ""
+                )
+
+                comparison.testing_recommendation = getattr(
+                    assessment,
+                    "testing_recommendation",
+                    ""
+                )
+
+                affected = getattr(
+                    assessment,
+                    "affected_teams",
+                    []
+                )
+
+                if isinstance(affected, list):
+
+                    comparison.affected_teams = ", ".join(
+                        affected
+                    )
+
+                else:
+
+                    comparison.affected_teams = str(
+                        affected
+                    )
+
+                comparison.difference_summary = getattr(
+                    assessment,
+                    "difference_summary",
+                    comparison.difference_summary
+                )
+
+            except Exception:
+
+                import traceback
+
+                print("\n" + "=" * 80)
+                print("AI CHANGE ASSESSMENT FAILED")
+                print("=" * 80)
+
+                traceback.print_exc()
+
+                raise
+
+            # ------------------------------------------
+            # IMPORTANT: Store the comparison item
+            # ------------------------------------------
+
             comparison_items.append(
                 comparison
             )
 
+            print(
+                f"Added: {comparison.parameter_name} | "
+                f"{comparison.status} | "
+                f"Total Items: {len(comparison_items)}"
+            )
         # --------------------------------------------------
         # Build Result
         # --------------------------------------------------
@@ -113,6 +233,18 @@ class ComparisonEngine:
 
         result.product_name_v2 = specification_v2.product_name
 
+        result.version_v1 = getattr(
+            specification_v1,
+            "product_version",
+            ""
+        )
+
+        result.version_v2 = getattr(
+            specification_v2,
+            "product_version",
+            ""
+        )
+
         result.items = comparison_items
 
         result.summary = self.summary.generate(
@@ -120,10 +252,15 @@ class ComparisonEngine:
         )
 
         print()
-        print("=" * 80)
-        print("COMPARISON COMPLETED")
+
         print("=" * 80)
 
-        print(f"Compared Items : {len(comparison_items)}")
+        print("COMPARISON COMPLETED")
+
+        print("=" * 80)
+
+        print(
+            f"Compared Items : {len(comparison_items)}"
+        )
 
         return result

@@ -24,7 +24,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List
 
-from models.page import Page
+from v2.models.page import Page
 
 
 @dataclass

@@ -22,8 +22,8 @@ Never calls GPT.
 
 import json
 
-from models.product_specification import ProductSpecification
-from models.business_parameter import BusinessParameter
+from v2.models.product_specification import ProductSpecification
+from v2.models.business_parameter import BusinessParameter
 
 
 class ResponseParser:
@@ -46,9 +46,10 @@ class ResponseParser:
                 ""
             ),
 
-            product_version=data.get(
-                "product_version",
-                ""
+            # Support both old and new prompts
+            product_version=(
+                data.get("version")
+                or data.get("product_version", "")
             ),
 
             insurer=data.get(
@@ -63,21 +64,21 @@ class ResponseParser:
 
         )
 
-        # Track parameters already added
         seen_parameters = set()
 
         for item in data.get("parameters", []):
 
             parameter = BusinessParameter(
 
-                name=item.get(
-                    "parameter_name",
-                    ""
+                # Support both formats
+                name=(
+                    item.get("name")
+                    or item.get("parameter_name", "")
                 ),
 
-                value=item.get(
-                    "parameter_value",
-                    ""
+                value=(
+                    item.get("value")
+                    or item.get("parameter_value", "")
                 ),
 
                 category=item.get(
@@ -90,9 +91,9 @@ class ResponseParser:
                     ""
                 ),
 
-                page_number=item.get(
-                    "page_number",
-                    0
+                page_number=(
+                    item.get("page")
+                    or item.get("page_number", 0)
                 ),
 
                 confidence=item.get(
@@ -102,16 +103,12 @@ class ResponseParser:
 
             )
 
-            # Skip invalid parameters
             if not self._is_valid_parameter(parameter):
-
                 continue
 
-            # Skip duplicate parameters
             key = parameter.name.strip().lower()
 
             if key in seen_parameters:
-
                 continue
 
             seen_parameters.add(key)
@@ -148,20 +145,14 @@ class ResponseParser:
         parameter
     ):
 
-        """
-        Returns True if the parameter should be kept.
-        """
-
         name = (parameter.name or "").strip()
 
         value = (parameter.value or "").strip()
 
-        # Parameter must have a name
         if not name:
 
             return False
 
-        # Ignore placeholder values
         invalid_values = {
 
             "",

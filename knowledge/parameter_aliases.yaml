@@ -1,0 +1,199 @@
+# ==========================================================
+# Parameter Aliases
+#
+# Maps different names used in insurance documents
+# to one canonical business parameter.
+#
+# Used by:
+#   - ParameterNormalizer
+#   - ParameterMatcher
+#   - ComparisonEngine
+#
+# ==========================================================
+
+Minimum Entry Age:
+  - Entry Age
+  - Age at Entry
+  - Minimum Age at Entry
+  - Min Entry Age
+  - Entry Age (Minimum)
+
+Maximum Entry Age:
+  - Maximum Age at Entry
+  - Max Entry Age
+  - Entry Age (Maximum)
+
+Minimum Maturity Age:
+  - Minimum Age at Maturity
+  - Min Maturity Age
+
+Maximum Maturity Age:
+  - Maximum Age at Maturity
+  - Max Maturity Age
+
+Policy Term:
+  - PT
+  - Policy Duration
+  - Term
+  - Policy Tenure
+
+Premium Paying Term:
+  - PPT
+  - Premium Term
+  - Premium Payment Term
+  - Premium Paying Period
+
+Premium Frequency:
+  - Premium Mode
+  - Payment Frequency
+  - Frequency
+  - Modal Frequency
+
+Basic Premium:
+  - Premium
+  - Annual Premium
+  - Base Premium
+
+Sum Assured:
+  - Basic Sum Assured
+  - SA
+  - Basic SA
+  - Coverage Amount
+
+Death Benefit:
+  - Death Claim Benefit
+  - Benefit on Death
+  - Life Cover Benefit
+
+Maturity Benefit:
+  - Benefit on Maturity
+  - Maturity Value
+  - Maturity Amount
+
+Survival Benefit:
+  - Survival Payout
+  - Survival Income
+
+Income Benefit:
+  - Guaranteed Income
+  - Income Payout
+  - Monthly Income
+  - Annual Income
+
+Guaranteed Income:
+  - Guaranteed Payout
+  - Guaranteed Cashflow
+
+Policy Loan:
+  - Loan
+  - Loan Facility
+
+Grace Period:
+  - Grace Days
+  - Premium Grace Period
+
+Revival Period:
+  - Policy Revival Period
+  - Revival Duration
+
+Tax Benefit:
+  - Income Tax Benefit
+  - Tax Savings
+  - Tax Deduction
+
+GST:
+  - Goods and Services Tax
+
+Surrender Value:
+  - SV
+  - Cash Surrender Value
+  - Policy Surrender Value
+
+Guaranteed Surrender Value:
+  - GSV
+
+Special Surrender Value:
+  - SSV
+
+Partial Withdrawal:
+  - Partial Withdrawals
+  - Withdrawal
+
+Fund Value:
+  - Policy Fund Value
+  - Unit Fund Value
+
+Fund Management Charge:
+  - FMC
+  - Fund Charge
+
+Mortality Charge:
+  - Insurance Charge
+  - Mortality Cost
+
+Policy Administration Charge:
+  - Administration Charge
+  - Admin Charge
+  - PAC
+
+Premium Allocation Charge:
+  - Allocation Charge
+
+Discontinuance Charge:
+  - Discontinuation Charge
+
+Switching Charge:
+  - Fund Switching Charge
+
+Free Look Period:
+  - Free Look
+  - Cooling Off Period
+
+Nominee:
+  - Nomination
+
+Appointee:
+  - Guardian
+
+Assignment:
+  - Policy Assignment
+
+Critical Illness Rider:
+  - CI Rider
+
+Accidental Death Rider:
+  - AD Rider
+
+Waiver of Premium Rider:
+  - WOP Rider
+
+Hospital Cash Rider:
+  - HCB Rider
+
+Disability Rider:
+  - Disability Benefit Rider
+
+Settlement Option:
+  - Settlement Facility
+
+Lock-in Period:
+  - Lock-in
+
+Paid-up Value:
+  - Paid Up Value
+  - Reduced Paid-up Value
+
+Lapse:
+  - Policy Lapse
+
+Revival Conditions:
+  - Conditions for Revival
+
+Policy Status:
+  - Status
+
+Risk Commencement Date:
+  - Risk Start Date
+
+Policy Anniversary:
+  - Anniversary Date

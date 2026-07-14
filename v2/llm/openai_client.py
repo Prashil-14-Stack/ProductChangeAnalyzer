@@ -24,7 +24,7 @@ This class DOES NOT
 
 from openai import OpenAI
 
-from config.settings import (
+from v2.config.settings import (
     OPENAI_API_KEY,
     OPENAI_MODEL,
     TEMPERATURE,
@@ -33,6 +33,10 @@ from config.settings import (
 
 
 class OpenAIClient:
+
+    # ======================================================
+    # Constructor
+    # ======================================================
 
     def __init__(self):
 
@@ -47,14 +51,16 @@ class OpenAIClient:
         )
 
     # ======================================================
-    # Extract Product Specification
+    # Generic Prompt
     # ======================================================
 
-    def generate(self, prompt: str) -> str:
-
+    def generate(
+        self,
+        prompt: str
+    ) -> str:
         """
-        Sends a prompt to OpenAI and returns
-        the raw text response.
+        Sends any prompt to the LLM and returns
+        the raw response text.
         """
 
         response = self.client.responses.create(
@@ -69,7 +75,29 @@ class OpenAIClient:
 
         )
 
-        return response.output_text
+        return response.output_text.strip()
+
+    # ======================================================
+    # Chat Alias
+    # ======================================================
+
+    def chat(
+        self,
+        prompt: str
+    ) -> str:
+        """
+        Alias for generate().
+
+        Keeps the interface readable for future
+        AI modules such as:
+
+        - Business Summary Generator
+        - Test Case Generator
+        - Compliance Analyzer
+        - Impact Reasoner
+        """
+
+        return self.generate(prompt)
 
     # ======================================================
     # Health Check
@@ -79,15 +107,9 @@ class OpenAIClient:
 
         try:
 
-            response = self.client.responses.create(
-
-                model=OPENAI_MODEL,
-
-                input="Reply with the word SUCCESS."
-
+            return self.generate(
+                "Reply with only the word SUCCESS."
             )
-
-            return response.output_text.strip()
 
         except Exception as error:
 

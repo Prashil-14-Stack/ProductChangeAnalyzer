@@ -1,75 +1,61 @@
-from typing import Dict, Any
+from models.document import Document
 
 
 class DocumentIntelligenceEngine:
 
     """
-    Converts raw document content into a unified structure
-    regardless of the source document type.
+    Enterprise Document Intelligence Engine
 
-    Supported Sources
+    Responsibility
+    --------------
+    Performs document-level enrichment.
 
-    - DOCX
-    - PDF
-    - OCR (future)
+    Examples:
+        - Classify document type
+        - Detect layout
+        - Extract metadata
+        - Future OCR cleanup
+        - Future AI document understanding
+
+    Does NOT extract business parameters.
     """
+
+    # ==========================================================
+    # Process Document
+    # ==========================================================
 
     def process(
 
         self,
 
-        raw_content: Dict[str, str],
+        document: Document
 
-        source_type: str
+    ) -> Document:
 
-    ) -> Dict[str, Any]:
+        # ------------------------------------------------------
+        # Basic Metadata
+        # ------------------------------------------------------
 
-        """
-        Normalizes raw document content into a common format.
+        document.metadata["page_count"] = document.page_count
 
-        Parameters
-        ----------
-        raw_content
-            Raw output returned by the reader.
+        document.metadata["block_count"] = document.block_count
 
-        source_type
-            docx / pdf / image
+        document.metadata["table_count"] = document.table_count
 
-        Returns
-        -------
-        Unified document structure.
-        """
+        document.metadata["document_type"] = document.file_type
 
-        unified_document = {
+        # ------------------------------------------------------
+        # Future Enhancements
+        # ------------------------------------------------------
+        #
+        # - OCR cleanup
+        # - Header/Footer removal
+        # - Table normalization
+        # - Document classification
+        # - AI layout understanding
+        #
+        # For now we simply enrich metadata.
+        #
+        # ------------------------------------------------------
 
-            "source_type": source_type,
-
-            "sections": [],
-
-            "raw_parameters": raw_content,
-
-            "metadata": {
-
-                "parameter_count": len(raw_content)
-
-            }
-
-        }
-
-        # ---------------------------------------
-        # Convert every parameter into a section
-        # ---------------------------------------
-
-        for parameter, value in raw_content.items():
-
-            unified_document["sections"].append({
-
-                "parameter": parameter,
-
-                "content": value,
-
-                "normalized_parameter": parameter.lower().strip()
-
-            })
-
-        return unified_document
+        return document

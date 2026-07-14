@@ -25,7 +25,7 @@ This object is consumed by:
 
 from dataclasses import dataclass, field
 
-from models.comparison_item import ComparisonItem
+from v2.models.comparison_item import ComparisonItem
 
 
 @dataclass

@@ -136,6 +136,16 @@ class ProductChangeService:
         # Excel Report
         # --------------------------------------------------
 
+        report_filename = (
+
+            f"{Path(version1_file.name).stem}"
+
+            f"_to_"
+
+            f"{Path(version2_file.name).stem}.xlsx"
+
+        )
+
         report_path = self.report_generator.generate(
 
             comparison_result,
@@ -144,7 +154,9 @@ class ProductChangeService:
 
             specification_v2,
 
-            business_summary
+            business_summary,
+
+            filename=report_filename
 
         )
 
@@ -314,6 +326,86 @@ class ProductChangeService:
 
         }
 
+    # ======================================================
+    # Compare Multiple Product Versions
+    # ======================================================
+
+    def compare_multiple_products(
+        self,
+        uploaded_files
+    ):
+
+        if len(uploaded_files) < 2:
+
+            raise ValueError(
+                "Please upload at least two files."
+            )
+
+        import shutil
+
+        results = []
+
+        for index in range(len(uploaded_files) - 1):
+
+            source_file = uploaded_files[index]
+
+            target_file = uploaded_files[index + 1]
+
+            print()
+            print("=" * 80)
+            print(
+                f"Comparing "
+                f"{source_file.name} "
+                f"-> "
+                f"{target_file.name}"
+            )
+            print("=" * 80)
+
+            result = self.compare_products(
+
+                source_file,
+
+                target_file
+
+            )
+
+            report_name = (
+
+                f"{Path(source_file.name).stem}"
+
+                f"_to_"
+
+                f"{Path(target_file.name).stem}.xlsx"
+
+            )
+
+            old_report = Path(result["report_path"])
+
+            new_report = old_report.parent / report_name
+
+            if old_report.exists():
+
+                shutil.move(
+
+                    old_report,
+
+                    new_report
+
+                )
+
+            result["report_path"] = str(
+
+                new_report
+
+            )
+
+            results.append(
+
+                result
+
+            )
+
+        return results
     # ======================================================
     # Helpers
     # ======================================================

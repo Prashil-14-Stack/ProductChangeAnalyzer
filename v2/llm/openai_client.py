@@ -69,7 +69,7 @@ class OpenAIClient:
 
             input=prompt,
 
-            temperature=TEMPERATURE,
+            #temperature=TEMPERATURE,
 
             max_output_tokens=MAX_TOKENS
 

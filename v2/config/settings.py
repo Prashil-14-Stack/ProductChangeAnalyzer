@@ -50,7 +50,10 @@ PROMPTS_FOLDER = PROJECT_ROOT / "prompts"
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 
 # Model to use
-OPENAI_MODEL = "gpt-4o-mini"
+OPENAI_MODEL = os.getenv(
+    "OPENAI_MODEL",
+    "gpt-5-mini"
+)
 
 # Model Parameters
 TEMPERATURE = 0.0
@@ -115,3 +118,13 @@ AUTHOR = "Prashil Wanjari"
 # ==========================================================
 
 OUTPUT_FOLDER.mkdir(parents=True, exist_ok=True)
+
+DB_HOST = os.getenv("DB_HOST", "localhost")
+
+DB_PORT = os.getenv("DB_PORT", "5432")
+
+DB_NAME = os.getenv("DB_NAME", "product_change_analyzer")
+
+DB_USER = os.getenv("DB_USER", "postgres")
+
+DB_PASSWORD = os.getenv("DB_PASSWORD", "")

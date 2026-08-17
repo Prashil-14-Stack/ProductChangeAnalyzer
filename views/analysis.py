@@ -4,6 +4,11 @@ from pipeline.analysis_pipeline_docx import AnalysisPipelineDOCX
 
 from utils.session_manager import SessionManager
 
+import io
+import os
+import zipfile
+
+from pathlib import Path
 
 def show_analysis():
 
@@ -83,23 +88,11 @@ def show_analysis():
 
     analysis = SessionManager.get_analysis()
 
-    # ==========================================================
-    # EXISTING ANALYSIS
-    # ==========================================================
-
     if analysis:
 
-        st.info(
+        st.info("📂 Showing existing analysis.")
 
-            "📂 Showing existing analysis."
-
-        )
-
-        col1, col2 = st.columns(
-
-            [4, 1]
-
-        )
+        col1, col2 = st.columns([4, 1])
 
         with col2:
 
@@ -115,85 +108,63 @@ def show_analysis():
 
                 st.rerun()
 
-        st.subheader(
+        # ==================================================
+        # MULTIPLE COMPARISONS
+        # ==================================================
 
-            ":material/description: Uploaded Files"
+        if isinstance(analysis, list):
 
-        )
+            for index, comparison in enumerate(analysis):
 
-        for document in analysis["documents"]:
+                st.subheader(
 
-            st.write(
+                    f"Comparison {index+1}"
 
-                f"**V{document['version']}** → "
+                )
 
-                f"{document['filename']}"
+                st.write(
 
-            )
+                    f"Version {index+1} → Version {index+2}"
 
-        st.success(
+                )
 
-            f"{len(analysis['documents'])} "
+                st.dataframe(
 
-            f"files available."
+                    comparison["comparison_table"],
 
-        )
+                    use_container_width=True
 
-        st.subheader(
+                )
 
-            ":material/sync_alt: Planned Comparison"
+            st.info(
 
-        )
-
-        for comparison in analysis["comparisons"]:
-
-            st.write(
-
-                f"✅ "
-
-                f"V{comparison['source']['version']} "
-
-                f"({comparison['source']['filename']})"
-
-                f" → "
-
-                f"V{comparison['target']['version']} "
-
-                f"({comparison['target']['filename']})"
+                f"{len(analysis)} comparisons loaded."
 
             )
 
-        st.subheader(
+        # ==================================================
+        # SINGLE COMPARISON
+        # ==================================================
 
-            ":material/analytics: Parameter Comparison"
+        else:
 
-        )
+            st.subheader(":material/description: Uploaded Files")
 
-        st.dataframe(
+            for document in analysis["documents"]:
 
-            analysis["comparison_table"],
+                st.write(
 
-            use_container_width=True
+                    f"**V{document['version']}** → "
 
-        )
+                    f"{document['filename']}"
 
-        with open(
+                )
 
-            analysis["report_path"],
+            st.subheader(":material/analytics: Parameter Comparison")
 
-            "rb"
+            st.dataframe(
 
-        ) as file:
-
-            st.download_button(
-
-                "📥 Download Analysis Report",
-
-                data=file,
-
-                file_name="Product_Analysis_Report.xlsx",
-
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                analysis["comparison_table"],
 
                 use_container_width=True
 
@@ -409,13 +380,27 @@ def show_analysis():
 
                 elif analysis_mode == "PDF":
 
-                    result = pipeline.compare_products(
+                    if len(uploaded_files) == 2:
 
-                        uploaded_files[0],
+                        result = pipeline.compare_products(
 
-                        uploaded_files[1]
+                            uploaded_files[0],
 
-                    )
+                            uploaded_files[1]
+
+                        )
+
+                    else:
+                        st.write("Total uploaded files:", len(uploaded_files))
+
+                        for i, file in enumerate(uploaded_files):
+                            st.write(i + 1, file.name)
+
+                        result = pipeline.compare_multiple_products(
+
+                            uploaded_files
+
+                        )
 
                 else:
 
@@ -427,11 +412,7 @@ def show_analysis():
             # Save Session
             # --------------------------------------------------
 
-            SessionManager.save_analysis(
-
-                result
-
-            )
+            SessionManager.save_analysis(result)
 
             st.success(
 
@@ -448,93 +429,162 @@ def show_analysis():
                 ":material/analytics: Parameter Comparison"
 
             )
+            if isinstance(result, list):
 
-            st.dataframe(
+                for index, comparison in enumerate(result):
 
-                result["comparison_table"],
+                    st.subheader(
 
-                use_container_width=True
+                        f"Comparison {index+1}"
 
-            )
+                    )
+
+                    st.write(
+
+                        f"V{index+1} → V{index+2}"
+
+                    )
+
+                    st.dataframe(
+
+                        comparison["comparison_table"],
+
+                        use_container_width=True
+
+                    )
+
+            else:
+
+                st.dataframe(
+
+                    result["comparison_table"],
+
+                    use_container_width=True
+
+                )
 
             # --------------------------------------------------
             # Dashboard Metrics
             # --------------------------------------------------
 
-            if "metrics" in result:
+            if isinstance(result, list):
+
+                for index, comparison in enumerate(result):
+
+                    st.subheader(
+
+                        f"Metrics : V{index+1} → V{index+2}"
+
+                    )
+
+                    metrics = comparison["metrics"]
+
+                    col1, col2, col3, col4 = st.columns(4)
+
+                    with col1:
+                        st.metric("Parameters", metrics["parameters"])
+
+                    with col2:
+                        st.metric("Matches", metrics["matches"])
+
+                    with col3:
+                        st.metric("Changes", metrics["changes"])
+
+                    with col4:
+                        st.metric("Documents", metrics["repository"])
+
+            else:
 
                 metrics = result["metrics"]
 
                 col1, col2, col3, col4 = st.columns(4)
 
                 with col1:
-
-                    st.metric(
-
-                        "Parameters",
-
-                        metrics["parameters"]
-
-                    )
+                    st.metric("Parameters", metrics["parameters"])
 
                 with col2:
-
-                    st.metric(
-
-                        "Matches",
-
-                        metrics["matches"]
-
-                    )
+                    st.metric("Matches", metrics["matches"])
 
                 with col3:
-
-                    st.metric(
-
-                        "Changes",
-
-                        metrics["changes"]
-
-                    )
+                    st.metric("Changes", metrics["changes"])
 
                 with col4:
+                    st.metric("Documents", metrics["repository"])
 
-                    st.metric(
-
-                        "Documents",
-
-                        metrics["repository"]
-
-                    )
 
             # --------------------------------------------------
-            # Download Report
+            # Download Reports
             # --------------------------------------------------
 
-            with open(
+            import io
+            import zipfile
+            import os
 
-                result["report_path"],
+            if isinstance(result, list):
 
-                "rb"
+                zip_buffer = io.BytesIO()
 
-            ) as file:
+                with zipfile.ZipFile(
+
+                    zip_buffer,
+
+                    "w",
+
+                    zipfile.ZIP_DEFLATED
+
+                ) as zip_file:
+
+                    for comparison in result:
+
+                        report_path = comparison["report_path"]
+
+                        with open(report_path, "rb") as report:
+
+                            zip_file.writestr(
+
+                                os.path.basename(report_path),
+
+                                report.read()
+
+                            )
+
+                zip_buffer.seek(0)
 
                 st.download_button(
 
-                    "📥 Download Analysis Report",
+                    "📥 Download All Analysis Reports",
 
-                    data=file,
+                    data=zip_buffer,
 
-                    file_name="Product_Analysis_Report.xlsx",
+                    file_name="Product_Comparison_Reports.zip",
 
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    mime="application/zip",
 
                     use_container_width=True,
 
-                    key="download_report"
+                    key="download_reports"
 
                 )
 
+            else:
+
+                with open(result["report_path"], "rb") as file:
+
+                    st.download_button(
+
+                        "📥 Download Analysis Report",
+
+                        data=file,
+
+                        file_name="Product_Analysis_Report.xlsx",
+
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+
+                        use_container_width=True,
+
+                        key="download_report"
+
+                    )
         # --------------------------------------------------
         # Auto Refresh
         # --------------------------------------------------
